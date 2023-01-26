@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html"%}
+{% block body %}
+    
+    {% if message %}
+
+    <label style="background:pink; color:red; border-radius: 2px;">{{ message }}</label>
+
+    {% endif %}
+    <form action = "{% url 'create'%}"method = "POST">
+        {% csrf_token %}
+        <div>
+            Title:
+        </div>
+        <div>
+            {{form.title}}
+        </div>
+        <div>
+            Starting Bid:
+        </div>
+        <div>
+            {{form.startingBid}}
+        </div>
+        <div>
+            Description:
+        </div>
+        <div>
+            {{form.description}}
+        </div>
+        <div>
+            Image URL:
+        </div>
+        <div>
+            {{form.imageURL}}
+        </div>
+        <div>
+            Category:
+        </div>
+        <div>
+            {{form.category}}
+        </div>
+        <input type="hidden" name="owner" value={{user.username}}>
+        <input type="submit">
+    </form>
+{% endblock %}

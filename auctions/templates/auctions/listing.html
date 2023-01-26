@@ -1,0 +1,106 @@
+{% extends 'auctions/layout.html'%}
+{% block body %}
+    <h2>Listing: {{title}}</h2>
+    {% if not user.username == listing.owner %}
+    <form action = "{% url 'add' title %}" method = "POST">
+        {% csrf_token %}
+        <input type="hidden" value = {{user.username}} name = "owner">
+        <input class = "button" style = "background:grey" type="submit" value = "Add to Watchlist">
+    </form>
+    {% endif %}
+    <img style="display:inline-block; width:30%" src="{{listing.imageURL}}" alt="{{listing.title}}">
+    <div>
+        <h1>${{listing.price}}</h1>
+    </div>
+    <div>
+        <h4>Category:</h4>
+        <div style="margin-bottom:30px"">
+            {{listing.category}}
+        </div>
+    </div>
+    <div>
+        <h4>Description:</h4>
+        <div style="margin-bottom:30px"">
+            {{listing.description}}
+        </div>
+    </div>
+    {% if listing.active == True %}
+        <div>
+            {% if bids == None %}
+                0
+            {% else %}
+                {{bids.number}}
+            {% endif %} bid(s) so far.
+            {% if not bids == None %}
+                {% if user.username == bids.owner %}
+                    Your
+                {% else %}
+                    {{bids.owner}}'s
+                {% endif %} bid is the current bid.
+            {% endif %}
+        </div>
+        {% if bids == None %}
+            Minimum starting bid: ${{listing.startingBid}}
+        {% endif %}
+        {% if not user.username == listing.owner %}
+            <form action = "{% url 'listing' title %}" method = "POST">
+                {% csrf_token %}
+                {%if message%}
+                    <label style="background:pink; color:red">{{message}}</label>
+                {%endif%}
+
+                </div>
+                {{bid_form.bid}}
+                <div>
+                    <input class = "button" type="submit" value="Place Bid">
+                </div>
+                {% if  user.is_authenticated %}
+                <input type="hidden" value = {{user.username}} name = "owner">
+                <input type="hidden" value = {{user.is_authenticated}} name ="authenticated">
+                {% else %}
+                <input type="hidden" value = "noname" name = "username">
+                <input type="hidden" value = {{user.is_authenticated}} name ="authenticated">
+                {% endif %}
+            </form>
+        {% endif %}
+        
+        {% if user.username == listing.owner %}
+            <form action = "{% url 'close' title %}" method = "POST">
+                {% csrf_token %}
+                <input class = "button" style = "background:red" type="submit" name="close" value = "Close">
+            </form>
+        {% endif %}
+        <h2>Comments</h2>
+        {% if not user.username == listing.owner %}
+            <form action = "{% url 'comment' listing.title %}" method = POST>
+                {%csrf_token%}
+                <input type = "text" name = "comment" placeholder="Type your comment">
+                <input type = "hidden" name = "username" value = {{user.username}}>
+                <input type = "submit" value = "Comment">
+            </form>
+        {% endif %}
+        {% for comment in comments%}
+            <div>
+                <strong>{{comment.user}}:</strong>
+            </div>
+            <div>
+                {{comment.body}}
+            </div>
+        {% empty %} 
+            No comments
+        {% endfor %}
+    {% else %}
+        <div>
+            Listing has been closed. The winner is 
+            {% if bids == None %}
+                lol
+            {% endif %}
+            {% if bids.owner == user.username %}
+                you
+            {% else %}
+                {{bids.owner}}
+            {% endif %}
+        </div>
+    {% endif %}
+    
+{% endblock %}
